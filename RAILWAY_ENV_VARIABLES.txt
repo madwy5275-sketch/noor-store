@@ -1,0 +1,27 @@
+================================================
+  RAILWAY ENVIRONMENT VARIABLES
+  Copy these one by one into Railway dashboard
+================================================
+
+Variable Name       Value
+--------------      -----
+DATABASE_URL        postgresql://neondb_owner:npg_JQEYOXNbL14H@ep-bold-field-amjhd11v.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require
+
+SESSION_SECRET      noor-secret-5529c645fd0d457cc1ba47edab46adfa
+
+ADMIN_USERNAME      admin
+
+ADMIN_PASSWORD      MH@Store2024
+
+PORT                8080
+
+NODE_ENV            production
+
+================================================
+  HOW TO ADD THEM IN RAILWAY:
+  1. Open your Railway project
+  2. Click your service
+  3. Click "Variables" tab
+  4. Click "+ New Variable"
+  5. Add each row above
+================================================
