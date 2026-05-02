@@ -61,3 +61,7 @@ replit.md
 .canvas/
 attached_assets/
 artifacts/mockup-sandbox/
+
+# Uploaded product images (keep directory, ignore content)
+uploads/*
+!uploads/.gitkeep

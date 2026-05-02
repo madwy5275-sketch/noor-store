@@ -1,25 +1,25 @@
 FROM node:20-slim
 
-RUN apt-get update && apt-get install -y unzip && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
 
-WORKDIR /build
-
+# Install pnpm globally
 RUN npm install -g pnpm@9
 
-COPY noor-final.zip .
+# Copy all project files
+COPY . .
 
-RUN unzip -q noor-final.zip
-
-WORKDIR /build/noor-deploy
-
+# Install dependencies (including devDependencies needed for migrations)
 RUN pnpm install --no-frozen-lockfile
 
-RUN cd artifacts/api-server && node build.mjs
+# Build the backend
+RUN pnpm --filter @workspace/api-server run build
 
-RUN ls -la artifacts/api-server/dist/
-
+# Build the frontend
 RUN PORT=3000 BASE_PATH=/ pnpm --filter @workspace/mh-store run build
+
+# Create uploads directory
+RUN mkdir -p /app/uploads
 
 EXPOSE 8080
 
-CMD ["node", "/build/noor-deploy/artifacts/api-server/dist/index.mjs"]
+CMD ["bash", "start.sh"]

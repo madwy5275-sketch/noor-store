@@ -11,4 +11,4 @@ cmds = [
 ]
 
 [start]
-cmd = "node artifacts/api-server/dist/index.mjs"
+cmd = "bash start.sh"

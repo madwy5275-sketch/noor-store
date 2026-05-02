@@ -3,19 +3,56 @@
   Copy these one by one into Railway dashboard
 ================================================
 
-Variable Name       Value
---------------      -----
-DATABASE_URL        postgresql://neondb_owner:npg_JQEYOXNbL14H@ep-bold-field-amjhd11v.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require
+Variable Name              Value
+--------------             -----
+DATABASE_URL               postgresql://your_user:your_password@your_host.neon.tech/noor?sslmode=require
 
-SESSION_SECRET      noor-secret-5529c645fd0d457cc1ba47edab46adfa
+SESSION_SECRET             noor-secret-change-this-to-random-string
 
-ADMIN_USERNAME      admin
+ADMIN_USERNAME             admin
 
-ADMIN_PASSWORD      MH@Store2024
+ADMIN_PASSWORD             MH@Store2024
 
-PORT                8080
+PORT                       8080
 
-NODE_ENV            production
+NODE_ENV                   production
+
+PUBLIC_URL                 https://your-app.up.railway.app  (set after first deploy)
+
+BRAVE_SEARCH_API_KEY       (optional - get from api.search.brave.com for image search)
+
+UPLOADS_DIR                /app/uploads  (optional - set if you add a Railway volume)
+
+
+================================================
+  ORDER NOTIFICATIONS (choose one or both)
+================================================
+
+--- TELEGRAM NOTIFICATIONS ---
+  Get notified on Telegram when a new order comes in.
+
+  TELEGRAM_BOT_TOKEN       123456789:ABCdef...  (from @BotFather on Telegram)
+  TELEGRAM_CHAT_ID         your numeric chat ID  (from @userinfobot on Telegram)
+
+  HOW TO SET UP TELEGRAM:
+  1. Open Telegram → search for @BotFather → send /newbot
+  2. Follow steps → copy the token → paste as TELEGRAM_BOT_TOKEN
+  3. Open @userinfobot → send /start → copy your Id number → paste as TELEGRAM_CHAT_ID
+  4. Send any message to your new bot first (to activate the chat)
+
+
+--- EMAIL NOTIFICATIONS ---
+  Get notified by email (Gmail) when a new order comes in.
+
+  NOTIFY_EMAIL               your.gmail@gmail.com
+  NOTIFY_EMAIL_APP_PASSWORD  xxxx xxxx xxxx xxxx  (Gmail App Password, NOT your regular password)
+
+  HOW TO SET UP EMAIL:
+  1. Go to myaccount.google.com → Security → 2-Step Verification (enable it)
+  2. Then go to: myaccount.google.com/apppasswords
+  3. App name: "Noor Store" → Create → copy the 16-character password
+  4. Paste it as NOTIFY_EMAIL_APP_PASSWORD
+
 
 ================================================
   HOW TO ADD THEM IN RAILWAY:
@@ -23,5 +60,15 @@ NODE_ENV            production
   2. Click your service
   3. Click "Variables" tab
   4. Click "+ New Variable"
-  5. Add each row above
+  5. Add each variable above
+
+  REQUIRED (minimum to run):
+    DATABASE_URL, SESSION_SECRET, PORT, NODE_ENV
+
+  RECOMMENDED:
+    ADMIN_USERNAME, ADMIN_PASSWORD, PUBLIC_URL
+
+  OPTIONAL (notifications):
+    TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID
+    or NOTIFY_EMAIL + NOTIFY_EMAIL_APP_PASSWORD
 ================================================

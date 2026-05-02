@@ -1,106 +1,77 @@
-# Noor Store — Deploy to Railway in 10 Minutes
+# Noor Store — Fashion E-Commerce Platform
 
-Your database is already configured. Follow these steps exactly.
+A full-stack Arabic/English fashion store with admin seller dashboard, built for Railway deployment.
 
----
+## Tech Stack
+- **Backend**: Express 5, Drizzle ORM, PostgreSQL (Neon)
+- **Frontend**: React 19, Vite, Tailwind CSS v4, shadcn/ui
+- **Monorepo**: pnpm workspaces
 
-## STEP 1 — Install Node.js on your computer
+## Quick Deploy to Railway
 
-1. Go to https://nodejs.org
-2. Click the big green "LTS" download button
-3. Install it (click Next → Next → Install)
-4. Open Command Prompt (Windows) or Terminal (Mac) and run:
-   ```
-   npm install -g pnpm
-   ```
+1. **Push this repo to GitHub**
+2. **Create a Railway project** → New Service → GitHub Repo
+3. **Add environment variables** (see `RAILWAY_ENV_VARIABLES.txt`)
+4. **Deploy** — Railway auto-detects nixpacks config
 
----
+## Environment Variables
 
-## STEP 2 — Create a GitHub account and upload your code
+See `RAILWAY_ENV_VARIABLES.txt` for all required variables.
 
-1. Go to https://github.com and click "Sign up" (it's free)
-2. After signing up, click the "+" button → "New repository"
-3. Name it: noor-store
-4. Leave it Public
-5. Click "Create repository"
+Minimum required:
+- `DATABASE_URL` — PostgreSQL connection string
+- `SESSION_SECRET` — Any random string
+- `PORT` — Set to `8080`
+- `NODE_ENV` — Set to `production`
 
-Now upload your code:
-- On the GitHub page that opens, click "uploading an existing file"
-- Drag ALL files from this ZIP (extracted) into the upload area
-- Click "Commit changes"
+## Features
 
----
+### Storefront
+- Arabic/English bilingual
+- Product catalog with categories, filters, search
+- Shopping cart with coupon codes
+- Order placement (cash on delivery)
+- Wishlist, product comparison, quick view
+- Order tracking
 
-## STEP 3 — Deploy on Railway (FREE)
+### Admin Dashboard (`/seller`)
+- **Products**: Add/edit/delete with image upload (3 methods)
+  1. **Paste URL** — Any image URL (jpg, png, webp, gif, avif…)
+  2. **Upload file** — Upload from your device (up to 10MB)
+  3. **Search online** — Search Brave Images (requires `BRAVE_SEARCH_API_KEY`)
+- **Import from Excel** — Bulk import products via tab-separated paste
+- **Orders** — View and manage all orders, update status
+- **Categories** — Manage product categories
+- **Coupons** — Create/manage discount codes
+- **Reviews** — Manage customer reviews
+- **Settings** — Announcement bar, sale events
 
-1. Go to https://railway.app
-2. Click "Start a New Project"
-3. Click "Sign in with GitHub" → authorize Railway
-4. Click "Deploy from GitHub repo"
-5. Select your "noor-store" repository
-6. Railway will start building automatically
+### Image Upload Notes
+- Uploaded images are stored in `/uploads/` on the server
+- Set `PUBLIC_URL` environment variable to your Railway domain for correct image URLs
+- For **persistent storage** across deployments: add a Railway Volume mounted at `/app/uploads`
+- Without a volume, uploaded images will be lost on redeployment (but URL-based images are unaffected)
 
----
+## Local Development
 
-## STEP 4 — Add environment variables in Railway
+```bash
+# Install dependencies
+pnpm install
 
-Click your service in Railway → Click "Variables" tab → Add these:
+# Set up environment
+cp artifacts/api-server/.env.example artifacts/api-server/.env
+# Edit .env with your DATABASE_URL
 
-| Variable          | Value                                                                                              |
-|-------------------|----------------------------------------------------------------------------------------------------|
-| DATABASE_URL      | postgresql://neondb_owner:npg_JQEYOXNbL14H@ep-bold-field-amjhd11v.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require |
-| SESSION_SECRET    | noor-secret-5529c645fd0d457cc1ba47edab46adfa                                                      |
-| ADMIN_USERNAME    | admin                                                                                              |
-| ADMIN_PASSWORD    | MH@Store2024                                                                                       |
-| PORT              | 8080                                                                                               |
-| NODE_ENV          | production                                                                                         |
+# Run migrations
+pnpm --filter @workspace/db run push
 
-After adding variables, Railway will automatically redeploy.
+# Start API server
+pnpm --filter @workspace/api-server run dev
 
----
+# Start frontend (in another terminal)
+pnpm --filter @workspace/mh-store run dev
+```
 
-## STEP 5 — Get your live URL
-
-1. In Railway, click "Settings" tab
-2. Click "Networking" → "Generate Domain"
-3. You get a URL like: https://noor-store-production.up.railway.app
-4. Open it in your browser — YOUR WEBSITE IS LIVE!
-
----
-
-## STEP 6 — Set up database tables (one time only)
-
-After Railway finishes deploying:
-
-1. In Railway, click your service → click "Settings" tab
-2. Find the "Deploy" section → click "Run Command"
-3. Enter this command and click Run:
-   ```
-   pnpm --filter @workspace/db run push
-   ```
-   This creates all your database tables (products, orders, etc.)
-
----
-
-## Admin Panel
-
-URL: https://YOUR-RAILWAY-URL/seller/login
-Username: admin
-Password: MH@Store2024
-
----
-
-## Run locally on your computer (optional)
-
-If you also want to run it on your computer:
-
-1. Extract this ZIP
-2. Open Command Prompt inside the folder
-3. Run: pnpm install
-4. Run: pnpm --filter @workspace/db run push
-5. Open Terminal 1: cd artifacts/api-server && pnpm run dev
-6. Open Terminal 2: cd artifacts/mh-store && pnpm run dev
-7. Open browser: http://localhost:3000
-
-The .env files are already created with your database credentials.
-
+## Admin Login
+- Default: `admin` / `MH@Store2024`
+- Change via `ADMIN_USERNAME` and `ADMIN_PASSWORD` environment variables

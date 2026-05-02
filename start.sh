@@ -1,33 +1,33 @@
-#!/bin/bash
-# ============================================================
-# NOOR STORE — Start Script
-# Run: bash start.sh
-# This starts both the backend and frontend together
-# ============================================================
+#!/usr/bin/env bash
+set -e
 
-echo ""
-echo "Starting Noor Store..."
-echo "Press Ctrl+C to stop"
-echo ""
+echo "============================================"
+echo "  Noor Store — Startup"
+echo "============================================"
 
-# Start API server in background
-echo "Starting backend API on port 8080..."
-cd artifacts/api-server && pnpm run dev &
-API_PID=$!
+# ── 1. Run database migrations ────────────────────────────────────────────────
+if [ -n "$DATABASE_URL" ]; then
+  echo "[startup] Running database migrations..."
+  if pnpm --filter @workspace/db run push-force 2>&1; then
+    echo "[startup] Migrations complete."
+  else
+    echo "[startup] Migration warning — continuing (tables may already exist)."
+  fi
+else
+  echo "[startup] DATABASE_URL not set — skipping migrations."
+fi
 
-# Wait a moment for the API to start
-sleep 3
+# ── 2. Auto-seed on first deployment (only if DB is empty) ───────────────────
+if [ -n "$DATABASE_URL" ]; then
+  echo "[startup] Running auto-seed check..."
+  pnpm --filter @workspace/scripts run auto-seed || echo "[startup] Seed skipped or errored — continuing."
+fi
 
-# Start frontend
-echo "Starting frontend on port 3000..."
-cd ../../artifacts/mh-store && pnpm run dev &
-FRONTEND_PID=$!
+# ── 3. Ensure uploads directory exists ───────────────────────────────────────
+UPLOADS="${UPLOADS_DIR:-/app/uploads}"
+mkdir -p "$UPLOADS"
+echo "[startup] Uploads directory: $UPLOADS"
 
-echo ""
-echo "Both services are running!"
-echo "Open: http://localhost:3000"
-echo ""
-
-# Wait for Ctrl+C
-trap "echo 'Stopping...'; kill $API_PID $FRONTEND_PID 2>/dev/null; exit" INT
-wait
+# ── 4. Start the API server ───────────────────────────────────────────────────
+echo "[startup] Starting server..."
+exec node artifacts/api-server/dist/index.mjs
