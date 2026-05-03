@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Trash2, Edit, Tag, X, Save, Star, Upload, Copy, CheckCircle, AlertCircle, Loader2, FileSpreadsheet, Search, ImageIcon, ExternalLink } from "lucide-react";
+import { Plus, Trash2, Edit, Tag, X, Save, Star, Upload, Copy, CheckCircle, AlertCircle, Loader2, FileSpreadsheet, Search, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
@@ -570,6 +570,9 @@ function ProductModal({
   const updateProduct = useUpdateProduct();
   const isEdit = !!product;
   const [imageMode, setImageMode] = useState<ImageInputMode>("url");
+  const [categoryMode, setCategoryMode] = useState<"select" | "new">("select");
+  const [newCategoryAr, setNewCategoryAr] = useState("");
+  const [newCategoryEn, setNewCategoryEn] = useState("");
 
   const [form, setForm] = useState<ProductForm>(
     product
@@ -591,6 +594,32 @@ function ProductModal({
     set("imageUrl", url);
     setImageMode("url");
     toast.success(t("تم اختيار الصورة", "Image selected"));
+  };
+
+  const handleCreateCategory = async () => {
+    if (!newCategoryAr.trim()) {
+      toast.error(t("أدخلي اسم الفئة بالعربي", "Enter category name in Arabic"));
+      return;
+    }
+    try {
+      const res = await fetch("/api/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nameAr: newCategoryAr.trim(),
+          nameEn: newCategoryEn.trim() || newCategoryAr.trim(),
+        }),
+      });
+      const cat = await res.json() as { id: number };
+      set("categoryId", String(cat.id));
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      toast.success(t("تم إنشاء الفئة وتحديدها", "Category created and selected"));
+      setCategoryMode("select");
+      setNewCategoryAr("");
+      setNewCategoryEn("");
+    } catch {
+      toast.error(t("فشل إنشاء الفئة", "Failed to create category"));
+    }
   };
 
   const handleSubmit = () => {
@@ -754,23 +783,45 @@ function ProductModal({
               <Input type="number" min={0} value={form.originalPrice} onChange={(e) => set("originalPrice", e.target.value)} className="rounded-none h-11" />
             </div>
 
-            {/* Category (optional) */}
+            {/* Category (optional) — select existing or create new */}
             <div>
-              <Label className="text-xs uppercase tracking-widest font-bold text-muted-foreground mb-2 block">
-                {t("الفئة", "Category")} <span className="text-muted-foreground font-normal normal-case tracking-normal">{t("(اختياري)", "(optional)")}</span>
-              </Label>
-              <select
-                value={form.categoryId}
-                onChange={(e) => set("categoryId", e.target.value)}
-                className="w-full h-11 border border-input bg-background px-3 text-sm rounded-none focus:outline-none focus:ring-2 focus:ring-primary/50"
-              >
-                <option value="">{t("— بدون فئة —", "— No category —")}</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {language === "ar" ? c.nameAr : c.nameEn}
-                  </option>
-                ))}
-              </select>
+              <div className="flex items-center justify-between mb-2">
+                <Label className="text-xs uppercase tracking-widest font-bold text-muted-foreground">
+                  {t("الفئة", "Category")} <span className="text-muted-foreground font-normal normal-case tracking-normal">{t("(اختياري)", "(optional)")}</span>
+                </Label>
+                <Button type="button" variant="ghost" size="sm"
+                  onClick={() => setCategoryMode(categoryMode === "select" ? "new" : "select")}
+                  className="rounded-none h-7 px-2 text-xs text-primary font-bold hover:bg-primary/5">
+                  {categoryMode === "select" ? t("+ فئة جديدة", "+ New category") : t("← اختر موجودة", "← Pick existing")}
+                </Button>
+              </div>
+              {categoryMode === "select" ? (
+                <select
+                  value={form.categoryId}
+                  onChange={(e) => set("categoryId", e.target.value)}
+                  className="w-full h-11 border border-input bg-background px-3 text-sm rounded-none focus:outline-none focus:ring-2 focus:ring-primary/50"
+                >
+                  <option value="">{t("— بدون فئة —", "— No category —")}</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {language === "ar" ? c.nameAr : c.nameEn}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <div className="space-y-2 border border-primary/20 bg-primary/5 p-3">
+                  <Input value={newCategoryAr} onChange={(e) => setNewCategoryAr(e.target.value)}
+                    className="rounded-none h-10" dir="rtl"
+                    placeholder={t("اسم الفئة بالعربي *", "Category name Arabic *")} />
+                  <Input value={newCategoryEn} onChange={(e) => setNewCategoryEn(e.target.value)}
+                    className="rounded-none h-10" dir="ltr"
+                    placeholder={t("اسم الفئة بالإنجليزي (اختياري)", "Category name English (optional)")} />
+                  <Button type="button" onClick={handleCreateCategory} size="sm"
+                    className="rounded-none h-9 w-full font-bold gap-2">
+                    <Plus className="h-4 w-4" />{t("إنشاء الفئة وتحديدها", "Create & select")}
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Stock (optional) */}
