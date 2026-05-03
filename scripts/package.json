@@ -9,19 +9,9 @@
     "auto-seed": "tsx ./src/auto-seed.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
-<<<<<<< HEAD
   "dependencies": {
-    "@workspace/db": "workspace:*",
-    "drizzle-orm": "catalog:",
-    "pg": "^8.20.0"
+    "@workspace/db": "workspace:*"
   },
-=======
- "dependencies": {
-  "@workspace/db": "workspace:*",
-  "drizzle-orm": "catalog:",
-  "pg": "^8.20.0"
-},
->>>>>>> 6bbb9c7dffee804af451726843a5fbb5f7a10c01
   "devDependencies": {
     "@types/node": "catalog:",
     "tsx": "catalog:"
