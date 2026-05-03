@@ -5,12 +5,7 @@
   "type": "module",
   "scripts": {
     "hello": "tsx ./src/hello.ts",
-    "seed-products": "tsx ./src/seed-products.ts",
-    "auto-seed": "tsx ./src/auto-seed.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
-  },
-  "dependencies": {
-    "@workspace/db": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "catalog:",

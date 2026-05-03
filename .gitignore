@@ -47,21 +47,3 @@ Thumbs.db
 # Replit
 .cache/
 .local/
-
-# Environment files — NEVER commit these
-.env
-*.env
-!.env.example
-
-# Replit specific
-.replit
-.replitignore
-replit.md
-.agents/
-.canvas/
-attached_assets/
-artifacts/mockup-sandbox/
-
-# Uploaded product images (keep directory, ignore content)
-uploads/*
-!uploads/.gitkeep

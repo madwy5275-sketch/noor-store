@@ -1,0 +1,116 @@
+scheduling build on Metal builder "builder-lwbyjv"
+[snapshot] received sha256:bed22ac8da0440e346cfee85d2aa0db325ebee4a11785cecd0c5be13c5f3d77a md5:d343bffba16fc589f504cc75fcb533af
+receiving snapshot
+5.3 MB
+2.2s
+found 'Dockerfile' at 'Dockerfile'
+found 'nixpacks.toml' at 'nixpacks.toml'
+found 'railway.json' at 'railway.json'
+analyzing snapshot
+5.3 MB
+71ms
+unpacking archive
+6.2 MB
+50ms
+uploading snapshot
+5.3 MB
+87ms
+
+internal
+load build definition from Dockerfile
+0ms
+
+internal
+load metadata for docker.io/library/node:20-slim
+160ms
+
+internal
+load .dockerignore
+0ms
+
+1
+FROM docker.io/library/node:20-slim@sha256:2cf067cfed83d5ea958367df9f966191a942351a2df77d6f0193e162b5febfc0
+9ms
+
+internal
+load build context
+0ms
+
+5
+RUN pnpm install --no-frozen-lockfile cached
+0ms
+
+4
+COPY . . cached
+0ms
+
+3
+RUN npm install -g pnpm@9 cached
+0ms
+
+2
+WORKDIR /app cached
+0ms
+
+6
+RUN pnpm --filter @workspace/api-server run build
+2s
+> @workspace/api-server@0.0.0 build /app/artifacts/api-server
+> node ./build.mjs
+✘ [ERROR] No matching export in "../../lib/api-zod/src/index.ts" for import "HealthCheckResponse"
+    src/routes/health.ts:2:9:
+      2 │ import { HealthCheckResponse } from "@workspace/api-zod";
+        ╵          ~~~~~~~~~~~~~~~~~~~
+✘ [ERROR] No matching export in "../../lib/api-zod/src/index.ts" for import "CreateCategoryBody"
+    src/routes/categories.ts:4:9:
+      4 │ import { CreateCategoryBody } from "@workspace/api-zod";
+        ╵          ~~~~~~~~~~~~~~~~~~
+✘ [ERROR] No matching export in "../../lib/api-zod/src/index.ts" for import "ListOrdersQueryParams"
+    src/routes/orders.ts:6:2:
+      6 │   ListOrdersQueryParams,
+        ╵   ~~~~~~~~~~~~~~~~~~~~~
+✘ [ERROR] No matching export in "../../lib/api-zod/src/index.ts" for import "CreateOrderBody"
+    src/routes/orders.ts:7:2:
+      7 │   CreateOrderBody,
+        ╵   ~~~~~~~~~~~~~~~
+✘ [ERROR] No matching export in "../../lib/api-zod/src/index.ts" for import "GetOrderParams"
+    src/routes/orders.ts:8:2:
+      8 │   GetOrderParams,
+        ╵   ~~~~~~~~~~~~~~
+✘ [ERROR] No matching export in "../../lib/api-zod/src/index.ts" for import "UpdateOrderParams"
+    src/routes/orders.ts:9:2:
+      9 │   UpdateOrderParams,
+        ╵   ~~~~~~~~~~~~~~~~~
+✘ [ERROR] No matching export in "../../lib/api-zod/src/index.ts" for import "UpdateOrderBody"
+    src/routes/orders.ts:10:2:
+      10 │   UpdateOrderBody,
+         ╵   ~~~~~~~~~~~~~~~
+7 errors
+  dist/pino-worker.mjs               153.4kb
+  dist/pino-file.mjs                 142.0kb
+  dist/pino-pretty.mjs               114.6kb
+  dist/thread-stream-worker.mjs        7.3kb
+  dist/pino-worker.mjs.map           256.9kb
+  dist/pino-file.mjs.map             229.0kb
+  dist/pino-pretty.mjs.map           204.0kb
+  dist/thread-stream-worker.mjs.map   12.0kb
+⚡ Done in 272ms
+Error: Build failed with 7 errors:
+
+src/routes/categories.ts:4:9: ERROR: No matching export in "../../lib/api-zod/src/index.ts" for import "CreateCategoryBody"
+src/routes/health.ts:2:9: ERROR: No matching export in "../../lib/api-zod/src/index.ts" for import "HealthCheckResponse"
+src/routes/orders.ts:6:2: ERROR: No matching export in "../../lib/api-zod/src/index.ts" for import "ListOrdersQueryParams"
+src/routes/orders.ts:7:2: ERROR: No matching export in "../../lib/api-zod/src/index.ts" for import "CreateOrderBody"
+src/routes/orders.ts:8:2: ERROR: No matching export in "../../lib/api-zod/src/index.ts" for import "GetOrderParams"
+...
+    at failureErrorWithLog (/app/node_modules/.pnpm/esbuild@0.27.7/node_modules/esbuild/lib/main.js:1748:15)
+    at /app/node_modules/.pnpm/esbuild@0.27.7/node_modules/esbuild/lib/main.js:1207:25
+    at /app/node_modules/.pnpm/esbuild@0.27.7/node_modules/esbuild/lib/main.js:1626:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  errors: [Getter/Setter],
+  warnings: [Getter/Setter]
+}
+/app/artifacts/api-server:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @workspace/api-server@0.0.0 build: `node ./build.mjs`
+Exit status 1
+Build Failed: build daemon returned an error < failed to solve: process "/bin/sh -c pnpm --filter @workspace/api-server run build" did not complete successfully: exit code: 1 
