@@ -77,6 +77,7 @@ export default function Cart() {
   const { t, language } = useI18n();
   const { items, addItem, removeItem, updateQuantity, clearCart } = useCart();
   const totalPrice = useCartTotalPrice();
+  const totalQuantity = useCart((state) => state.items.reduce((s, i) => s + i.quantity, 0));
   const createOrder = useCreateOrder();
   const { settings } = useSiteSettings();
 
@@ -469,7 +470,12 @@ export default function Cart() {
           {/* Order Summary */}
           <div className="w-full lg:w-2/5 order-1 lg:order-2">
             <div className="bg-secondary/50 p-8 md:p-10 sticky top-28">
-              <h2 className="text-2xl font-serif font-bold mb-8 uppercase tracking-wide border-b border-border/50 pb-4">{t("ملخص الطلب", "Order Summary")}</h2>
+              <h2 className="text-2xl font-serif font-bold mb-2 uppercase tracking-wide border-b border-border/50 pb-4 flex items-center justify-between">
+                {t("ملخص الطلب", "Order Summary")}
+                <span className="text-base font-sans font-normal text-muted-foreground">
+                  {totalQuantity} {t("قطعة", totalQuantity === 1 ? "item" : "items")}
+                </span>
+              </h2>
               <FreeShippingBar total={totalPrice} />
 
               <div className="space-y-8 mb-10 max-h-[50vh] overflow-y-auto pr-4 scrollbar-hide">
@@ -582,7 +588,7 @@ export default function Cart() {
               <div className="border-t border-border/50 pt-6 space-y-4">
                 <div className="flex justify-between text-lg">
                   <span className="text-foreground/70">{t("المجموع", "Subtotal")}</span>
-                  <span className="font-bold">{totalPrice} {t("ج.م", "EGP")}</span>
+                  <span className="font-bold">{Number(totalPrice).toLocaleString()} {t("ج.م", "EGP")}</span>
                 </div>
                 {appliedCoupon && (
                   <div className="flex justify-between text-lg text-green-600 dark:text-green-400">
@@ -599,7 +605,7 @@ export default function Cart() {
                 </div>
                 <div className="flex justify-between text-2xl font-serif font-black pt-6 mt-4 border-t border-border/50">
                   <span>{t("الإجمالي", "Total")}</span>
-                  <span>{finalTotal} <span className="text-lg font-sans font-normal text-foreground/60">{t("ج.م", "EGP")}</span></span>
+                  <span>{Number(finalTotal).toLocaleString()} <span className="text-lg font-sans font-normal text-foreground/60">{t("ج.م", "EGP")}</span></span>
                 </div>
               </div>
             </div>
