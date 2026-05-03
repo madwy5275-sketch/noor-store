@@ -1,0 +1,14 @@
+[phases.setup]
+nixPkgs = ["nodejs_20", "nodePackages.pnpm"]
+
+[phases.install]
+cmds = ["pnpm install --no-frozen-lockfile"]
+
+[phases.build]
+cmds = [
+  "pnpm --filter @workspace/api-server run build",
+  "PORT=3000 BASE_PATH=/ pnpm --filter @workspace/mh-store run build"
+]
+
+[start]
+cmd = "bash start.sh"
