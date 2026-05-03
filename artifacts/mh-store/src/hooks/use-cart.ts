@@ -18,27 +18,26 @@ interface CartStore {
   removeItem: (productId: number, size?: string, color?: string) => void;
   updateQuantity: (productId: number, size: string | undefined, color: string | undefined, quantity: number) => void;
   clearCart: () => void;
-  totalItems: number;
-  totalPrice: number;
 }
 
 export const useCart = create<CartStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       items: [],
       addItem: (newItem) => {
         set((state) => {
-          const existingItemIndex = state.items.findIndex(
+          const existingIdx = state.items.findIndex(
             (i) => i.productId === newItem.productId && i.size === newItem.size && i.color === newItem.color
           );
-          
-          if (existingItemIndex >= 0) {
+          if (existingIdx >= 0) {
             const newItems = [...state.items];
-            newItems[existingItemIndex].quantity += newItem.quantity;
+            newItems[existingIdx] = {
+              ...newItems[existingIdx],
+              quantity: newItems[existingIdx].quantity + newItem.quantity,
+            };
             return { items: newItems };
           }
-          
-          return { items: [...state.items, newItem] };
+          return { items: [...state.items, { ...newItem, price: Number(newItem.price) }] };
         });
       },
       removeItem: (productId, size, color) => {
@@ -59,15 +58,13 @@ export const useCart = create<CartStore>()(
         }));
       },
       clearCart: () => set({ items: [] }),
-      get totalItems() {
-        return get().items.reduce((total, item) => total + item.quantity, 0);
-      },
-      get totalPrice() {
-        return get().items.reduce((total, item) => total + (item.price * item.quantity), 0);
-      },
     }),
-    {
-      name: "mh-cart-storage",
-    }
+    { name: "mh-cart-storage" }
   )
 );
+
+export const useCartTotalItems = () =>
+  useCart((state) => state.items.reduce((sum, item) => sum + item.quantity, 0));
+
+export const useCartTotalPrice = () =>
+  useCart((state) => state.items.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0));

@@ -1,6 +1,6 @@
 import { Layout } from "@/components/layout";
 import { useI18n } from "@/lib/i18n";
-import { useCart } from "@/hooks/use-cart";
+import { useCart, useCartTotalPrice } from "@/hooks/use-cart";
 import { useCreateOrder, useValidateCoupon } from "@workspace/api-client-react";
 import type { CouponValidation } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
@@ -75,7 +75,8 @@ const PAYMENT_METHODS = [
 
 export default function Cart() {
   const { t, language } = useI18n();
-  const { items, addItem, removeItem, updateQuantity, totalPrice, clearCart } = useCart();
+  const { items, addItem, removeItem, updateQuantity, clearCart } = useCart();
+  const totalPrice = useCartTotalPrice();
   const createOrder = useCreateOrder();
   const { settings } = useSiteSettings();
 
@@ -402,6 +403,12 @@ export default function Cart() {
                   {/* Payment instructions for non-COD */}
                   {selectedPayment !== "cod" && selectedDetails && (
                     <div className={`p-5 border ${selectedMethod?.border} ${selectedMethod?.bg} space-y-3`}>
+                      <div className="flex items-center justify-between bg-white/60 dark:bg-black/20 px-4 py-3 border border-white/40 dark:border-white/10 mb-1">
+                        <span className={`text-sm font-bold ${selectedMethod?.color}`}>{t("المبلغ المطلوب", "Amount Due")}</span>
+                        <span className={`text-2xl font-black font-serif ${selectedMethod?.color}`}>
+                          {finalTotal.toLocaleString()} <span className="text-sm font-normal">{t("ج.م", "EGP")}</span>
+                        </span>
+                      </div>
                       <p className={`text-sm font-bold ${selectedMethod?.color}`}>
                         {language === "ar" ? selectedDetails.instructionsAr : selectedDetails.instructionsEn}
                       </p>
@@ -509,9 +516,14 @@ export default function Cart() {
                             className="w-10 h-full flex items-center justify-center hover:bg-secondary text-lg"
                           >+</button>
                         </div>
-                        <span className="font-bold text-lg whitespace-nowrap">
-                          {item.price} <span className="text-sm font-normal text-foreground/60">{t("ج.م", "EGP")}</span>
-                        </span>
+                        <div className="text-right">
+                          <span className="font-bold text-lg whitespace-nowrap block">
+                            {(Number(item.price) * item.quantity).toLocaleString()} <span className="text-sm font-normal text-foreground/60">{t("ج.م", "EGP")}</span>
+                          </span>
+                          {item.quantity > 1 && (
+                            <span className="text-xs text-foreground/40">{Number(item.price).toLocaleString()} × {item.quantity}</span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>

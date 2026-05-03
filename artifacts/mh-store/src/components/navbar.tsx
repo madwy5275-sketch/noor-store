@@ -40,7 +40,7 @@ const SOCIAL_LINKS = {
 
 export function Navbar() {
   const { t, language, setLanguage } = useI18n();
-  const { totalItems } = useCart();
+  const totalItems = useCart((state) => state.items.reduce((s, i) => s + i.quantity, 0));
   const { count: wishlistCount } = useWishlist();
   const [location] = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);

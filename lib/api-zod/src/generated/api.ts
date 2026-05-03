@@ -7,6 +7,14 @@
  */
 import { z as zod } from "zod/v4";
 
+// ── Health ────────────────────────────────────────────────────────────────────
+
+export const HealthCheckResponse = zod.object({
+  status: zod.string(),
+});
+
+// ── Products ──────────────────────────────────────────────────────────────────
+
 export const ListProductsQueryParams = zod.object({
   category: zod.string().optional(),
   featured: zod
@@ -39,3 +47,52 @@ export const UpdateProductParams = zod.object({ id: zod.number().int().positive(
 export const DeleteProductParams = zod.object({ id: zod.number().int().positive() });
 
 export const ListProductsQueryParamsType = ListProductsQueryParams;
+
+// ── Categories ────────────────────────────────────────────────────────────────
+
+export const CreateCategoryBody = zod.object({
+  nameAr: zod.string().min(1),
+  nameEn: zod.string().min(1),
+  imageUrl: zod.string().optional(),
+});
+
+// ── Orders ────────────────────────────────────────────────────────────────────
+
+const OrderStatusEnum = zod.enum([
+  "pending",
+  "confirmed",
+  "shipped",
+  "delivered",
+  "cancelled",
+]);
+
+export const ListOrdersQueryParams = zod.object({
+  status: OrderStatusEnum.optional(),
+});
+
+export const CreateOrderBody = zod.object({
+  customerName: zod.string().min(1),
+  customerPhone: zod.string().min(7),
+  customerAddress: zod.string().min(1),
+  customerCity: zod.string().optional(),
+  items: zod.array(
+    zod.object({
+      productId: zod.number().int().positive(),
+      quantity: zod.number().int().positive(),
+      size: zod.string().optional(),
+      color: zod.string().optional(),
+    })
+  ).min(1),
+  paymentMethod: zod.string().optional(),
+  couponCode: zod.string().nullable().optional(),
+  discountAmount: zod.number().min(0).optional(),
+  notes: zod.string().optional(),
+});
+
+export const GetOrderParams = zod.object({ id: zod.number().int().positive() });
+export const UpdateOrderParams = zod.object({ id: zod.number().int().positive() });
+
+export const UpdateOrderBody = zod.object({
+  status: OrderStatusEnum,
+  notes: zod.string().optional(),
+});

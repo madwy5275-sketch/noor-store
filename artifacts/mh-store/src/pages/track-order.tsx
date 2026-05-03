@@ -234,7 +234,7 @@ function OrderCard({ order }: { order: any }) {
           <div className="w-px h-8 bg-border hidden sm:block" />
           <div className="hidden sm:block">
             <p className="text-xs text-muted-foreground uppercase tracking-wide mb-0.5">{t("المنتجات", "Items")}</p>
-            <p className="font-medium text-sm">{order.items?.length ?? 0} {t("قطعة", "items")}</p>
+            <p className="font-medium text-sm">{order.items?.reduce((s: number, i: any) => s + (i.quantity || 1), 0) ?? 0} {t("قطعة", "items")}</p>
           </div>
         </div>
         <button
@@ -277,15 +277,15 @@ function OrderCard({ order }: { order: any }) {
             <MapPin className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-1">{t("عنوان التوصيل", "Delivery Address")}</p>
-              <p className="text-sm font-medium">{order.shippingAddress}</p>
-              <p className="text-sm text-muted-foreground">{order.city}</p>
+              <p className="text-sm font-medium">{order.customerAddress}</p>
+              <p className="text-sm text-muted-foreground">{order.customerCity}</p>
             </div>
           </div>
 
           {/* Phone */}
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Phone className="h-4 w-4" />
-            <span dir="ltr">{order.phone}</span>
+            <span dir="ltr">{order.customerPhone}</span>
           </div>
         </div>
       )}

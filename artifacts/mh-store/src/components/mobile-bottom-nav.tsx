@@ -1,12 +1,12 @@
 import { useLocation, Link } from "wouter";
 import { useI18n } from "@/lib/i18n";
-import { useCart } from "@/hooks/use-cart";
+import { useCartTotalItems } from "@/hooks/use-cart";
 import { Home, Grid, Search, ShoppingBag } from "lucide-react";
 
 export function MobileBottomNav() {
   const [location] = useLocation();
   const { t } = useI18n();
-  const { totalItems } = useCart();
+  const totalItems = useCartTotalItems();
 
   const navItems = [
     { href: "/", icon: Home, label: t("الرئيسية", "Home") },

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Save, Megaphone, Timer, Image, Phone, Store, Star, Layout, Layers, Sparkles, GripVertical, Eye, EyeOff, ChevronUp, ChevronDown, LayoutDashboard, CreditCard } from "lucide-react";
+import { Save, Megaphone, Timer, Image, Phone, Store, Star, Layout, Layers, Sparkles, GripVertical, Eye, EyeOff, ChevronUp, ChevronDown, LayoutDashboard, CreditCard, Tags, Plus, Pencil, Trash2, X, Check } from "lucide-react";
 import { useSiteSettings } from "@/contexts/site-settings-context";
 import {
   saveSetting,
@@ -28,6 +28,7 @@ const TABS = [
   { id: "editorial",    icon: Image,           ar: "لوك بوك",             en: "Lookbook" },
   { id: "features",     icon: Sparkles,        ar: "مميزاتنا",            en: "Features" },
   { id: "testimonials", icon: Star,            ar: "آراء العملاء",        en: "Testimonials" },
+  { id: "categories",   icon: Tags,            ar: "الفئات",              en: "Categories" },
 ] as const;
 
 type TabId = typeof TABS[number]["id"];
@@ -113,6 +114,69 @@ export default function SellerSettings() {
 
   const [saving, setSaving] = useState<Partial<Record<string, boolean>>>({});
   const logoInputRef = useRef<HTMLInputElement>(null);
+
+  const [categories, setCategories] = useState<any[]>([]);
+  const [catLoading, setCatLoading] = useState(false);
+  const [catNewAr, setCatNewAr] = useState("");
+  const [catNewEn, setCatNewEn] = useState("");
+  const [catNewImage, setCatNewImage] = useState("");
+  const [catAdding, setCatAdding] = useState(false);
+  const [editingCat, setEditingCat] = useState<number | null>(null);
+  const [editAr, setEditAr] = useState("");
+  const [editEn, setEditEn] = useState("");
+  const [editImage, setEditImage] = useState("");
+
+  const fetchCategories = async () => {
+    setCatLoading(true);
+    try {
+      const res = await fetch("/api/categories");
+      if (res.ok) setCategories(await res.json());
+    } finally { setCatLoading(false); }
+  };
+
+  const handleAddCategory = async () => {
+    if (!catNewAr.trim() || !catNewEn.trim()) return;
+    setCatAdding(true);
+    try {
+      const res = await fetch("/api/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nameAr: catNewAr.trim(), nameEn: catNewEn.trim(), imageUrl: catNewImage.trim() || undefined }),
+      });
+      if (res.ok) {
+        toast.success(t("تمت إضافة الفئة", "Category added"));
+        setCatNewAr(""); setCatNewEn(""); setCatNewImage("");
+        fetchCategories();
+      } else { toast.error(t("حدث خطأ", "Error")); }
+    } finally { setCatAdding(false); }
+  };
+
+  const handleUpdateCategory = async (id: number) => {
+    try {
+      const res = await fetch(`/api/categories/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nameAr: editAr, nameEn: editEn, imageUrl: editImage || undefined }),
+      });
+      if (res.ok) {
+        toast.success(t("تم التحديث", "Updated"));
+        setEditingCat(null);
+        fetchCategories();
+      }
+    } catch { toast.error(t("حدث خطأ", "Error")); }
+  };
+
+  const handleDeleteCategory = async (id: number) => {
+    if (!confirm(t("هل أنت متأكد من حذف هذه الفئة؟", "Delete this category?"))) return;
+    try {
+      const res = await fetch(`/api/categories/${id}`, { method: "DELETE" });
+      if (res.ok) { toast.success(t("تم الحذف", "Deleted")); fetchCategories(); }
+    } catch { toast.error(t("حدث خطأ", "Error")); }
+  };
+
+  useEffect(() => {
+    if (activeTab === "categories") fetchCategories();
+  }, [activeTab]);
 
   useEffect(() => {
     setBrand(ctxSettings.brand);
@@ -606,6 +670,110 @@ export default function SellerSettings() {
               </div>
             </div>
           </SectionCard>
+        )}
+
+        {/* ── CATEGORIES ── */}
+        {activeTab === "categories" && (
+          <div className="bg-card border border-border p-6 space-y-6">
+            <div className="flex items-center gap-3 pb-4 border-b border-border">
+              <div className="w-10 h-10 bg-primary/10 flex items-center justify-center">
+                <Tags className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-xl font-serif font-bold">{t("إدارة الفئات", "Manage Categories")}</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">{t("أضيفي أو عدّلي أو احذفي فئات المنتجات", "Add, edit, or delete product categories")}</p>
+              </div>
+            </div>
+
+            {/* Add new */}
+            <div className="border border-dashed border-border p-5 space-y-4 bg-secondary/10">
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("إضافة فئة جديدة", "Add New Category")}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-xs uppercase tracking-widest font-bold text-muted-foreground mb-2 block">{t("الاسم بالعربي", "Arabic Name")}</Label>
+                  <Input value={catNewAr} onChange={(e) => setCatNewAr(e.target.value)} className="rounded-none h-11" dir="rtl" placeholder={t("مثال: عبايات", "e.g. Abayas")} />
+                </div>
+                <div>
+                  <Label className="text-xs uppercase tracking-widest font-bold text-muted-foreground mb-2 block">{t("الاسم بالإنجليزي", "English Name")}</Label>
+                  <Input value={catNewEn} onChange={(e) => setCatNewEn(e.target.value)} className="rounded-none h-11" dir="ltr" placeholder="e.g. Abayas" />
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs uppercase tracking-widest font-bold text-muted-foreground mb-2 block">{t("رابط صورة الفئة (اختياري)", "Category Image URL (Optional)")}</Label>
+                <Input value={catNewImage} onChange={(e) => setCatNewImage(e.target.value)} className="rounded-none h-11" dir="ltr" placeholder="https://..." />
+              </div>
+              <Button
+                onClick={handleAddCategory}
+                disabled={catAdding || !catNewAr.trim() || !catNewEn.trim()}
+                className="rounded-none h-11 px-6 font-bold uppercase tracking-wide"
+              >
+                <Plus className="h-4 w-4 mr-2 rtl:ml-2 rtl:mr-0" />
+                {catAdding ? t("جاري الإضافة...", "Adding...") : t("إضافة الفئة", "Add Category")}
+              </Button>
+            </div>
+
+            {/* List */}
+            {catLoading ? (
+              <div className="flex items-center justify-center py-10">
+                <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : categories.length === 0 ? (
+              <div className="text-center py-10 text-muted-foreground">
+                <Tags className="h-10 w-10 mx-auto mb-3 opacity-20" />
+                <p className="text-sm">{t("لا توجد فئات بعد. أضيفي أول فئة أعلاه.", "No categories yet. Add the first one above.")}</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {categories.map((cat) => (
+                  <div key={cat.id} className="border border-border bg-background">
+                    {editingCat === cat.id ? (
+                      <div className="p-4 space-y-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <Input value={editAr} onChange={(e) => setEditAr(e.target.value)} className="rounded-none h-10" dir="rtl" placeholder={t("الاسم بالعربي", "Arabic name")} />
+                          <Input value={editEn} onChange={(e) => setEditEn(e.target.value)} className="rounded-none h-10" dir="ltr" placeholder="English name" />
+                        </div>
+                        <Input value={editImage} onChange={(e) => setEditImage(e.target.value)} className="rounded-none h-10" dir="ltr" placeholder="Image URL (optional)" />
+                        <div className="flex items-center gap-2">
+                          <Button size="sm" onClick={() => handleUpdateCategory(cat.id)} className="rounded-none h-9 px-4">
+                            <Check className="h-4 w-4 mr-1" />{t("حفظ", "Save")}
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => setEditingCat(null)} className="rounded-none h-9 px-4">
+                            <X className="h-4 w-4 mr-1" />{t("إلغاء", "Cancel")}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-4 px-4 py-3">
+                        {cat.imageUrl && (
+                          <div className="w-12 h-12 bg-secondary overflow-hidden flex-shrink-0 border border-border">
+                            <img src={cat.imageUrl} alt="" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold">{cat.nameAr}</p>
+                          <p className="text-sm text-muted-foreground">{cat.nameEn}</p>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <button
+                            onClick={() => { setEditingCat(cat.id); setEditAr(cat.nameAr); setEditEn(cat.nameEn); setEditImage(cat.imageUrl || ""); }}
+                            className="w-8 h-8 flex items-center justify-center border border-border hover:border-primary hover:text-primary transition-colors"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCategory(cat.id)}
+                            className="w-8 h-8 flex items-center justify-center border border-border hover:border-destructive hover:text-destructive transition-colors"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         )}
 
         {/* ── TESTIMONIALS ── */}
