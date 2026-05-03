@@ -3,15 +3,18 @@ import { db } from "@workspace/db";
 import { categoriesTable } from "@workspace/db";
 import { CreateCategoryBody } from "@workspace/api-zod";
 import { eq } from "drizzle-orm";
-import zod from "zod";
 
 const router = Router();
 
-const UpdateCategoryBody = zod.object({
-  nameAr: zod.string().min(1).optional(),
-  nameEn: zod.string().min(1).optional(),
-  imageUrl: zod.string().optional(),
-});
+function parseUpdateBody(body: unknown) {
+  if (!body || typeof body !== "object") return null;
+  const b = body as Record<string, unknown>;
+  return {
+    nameAr: typeof b.nameAr === "string" && b.nameAr.trim() ? b.nameAr.trim() : undefined,
+    nameEn: typeof b.nameEn === "string" && b.nameEn.trim() ? b.nameEn.trim() : undefined,
+    imageUrl: typeof b.imageUrl === "string" ? b.imageUrl.trim() || undefined : undefined,
+  };
+}
 
 router.get("/categories", async (req, res) => {
   try {
@@ -45,11 +48,11 @@ router.patch("/categories/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (!id || isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
-    const body = UpdateCategoryBody.safeParse(req.body);
-    if (!body.success) { res.status(400).json({ error: "Invalid body" }); return; }
+    const body = parseUpdateBody(req.body);
+    if (!body) { res.status(400).json({ error: "Invalid body" }); return; }
     const [updated] = await db
       .update(categoriesTable)
-      .set(body.data)
+      .set(body)
       .where(eq(categoriesTable.id, id))
       .returning();
     if (!updated) { res.status(404).json({ error: "Category not found" }); return; }
